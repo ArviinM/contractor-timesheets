@@ -11,13 +11,12 @@ import { approveWeek, rejectWeek, submitWeek } from "../src/server/weeks";
 import { ENG, entryCount, log, NOW, setup, type Fixture } from "./fixtures";
 
 let f: Fixture;
-let ayuEntry: number;
 let ayuWeek: number; // Ayu's week for Northwind, submitted
 const MON = "2026-11-23";
 
 beforeEach(() => {
   f = setup();
-  ayuEntry = log(f, f.ayu, ENG.ayuNorthwind, `${MON}T09:00`, `${MON}T10:00`);
+  log(f, f.ayu, ENG.ayuNorthwind, `${MON}T09:00`, `${MON}T10:00`);
   log(f, f.ayu, ENG.ayuNorthwind, `${MON}T11:00`, `${MON}T12:00`);
   ayuWeek = submitWeek(f.db, f.ayu, { engagementId: ENG.ayuNorthwind, weekStart: MON }, NOW);
 });
