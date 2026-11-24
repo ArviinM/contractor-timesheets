@@ -11,6 +11,7 @@ import {
   clockTime,
   dayLabel,
   fromUtcText,
+  isLocalDate,
   todayIn,
   toLocalInput,
   weekDates,
@@ -135,8 +136,9 @@ export type ContractorWeek = {
 
 export function getContractorWeek(db: DB, actor: Actor, weekStart: string, now: Date): ContractorWeek {
   requireRole(actor, "contractor");
-  const ws = weekStartOf(weekStart);
   const today = todayIn(actor.timeZone, now);
+  // A bad ?week= in the URL falls back to the current week.
+  const ws = weekStartOf(isLocalDate(weekStart) ? weekStart : today);
 
   const rows = db
     .prepare(
