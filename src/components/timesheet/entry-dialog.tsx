@@ -97,7 +97,7 @@ export function EntryDialog({ mode, engagements, timeZone, onClose }: Props) {
         <form onSubmit={save} className="grid gap-4">
           <DialogHeader>
             <DialogTitle>{editing ? "Edit entry" : "New entry"}</DialogTitle>
-            <DialogDescription>Times are in your time zone, {timeZone}.</DialogDescription>
+            <DialogDescription>Times in {timeZone} (your time zone).</DialogDescription>
           </DialogHeader>
 
           {engagements.length > 1 && (
