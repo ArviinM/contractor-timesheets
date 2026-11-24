@@ -16,8 +16,9 @@ npm run db:reset     # creates data/app.db and loads the seed data
 npm run dev          # http://localhost:3000
 ```
 
-Open http://localhost:3000 and pick a user. `npm run dev` also creates and seeds the database if it's
-missing, so a skipped `db:reset` still works. Run `npm run db:reset` any time to start fresh.
+Open http://localhost:3000 and pick a user. **Take the tour** in the top bar walks through the screens
+for that role in about a minute. `npm run dev` also creates and seeds the database if it's missing, so a
+skipped `db:reset` still works. Run `npm run db:reset` any time to start fresh.
 
 ### Tests
 
@@ -88,9 +89,11 @@ src/server/          all rules live here, framework-free and tested directly
   seed.ts            synthetic data, created through the same services
   session.ts         dev login (cookie -> user)
 src/app/actions.ts   Server Actions: who's signed in, then call a service. Nothing else.
-src/app/...          pages and components (shadcn/ui)
-tests/               Vitest: time, money, entries, weeks, invoice, permissions, seed
-e2e/                 Playwright: main flows in a browser
+src/app/...          pages: sign-in, timesheet (list / table / timeline), review, invoice
+src/components/      shadcn/ui based components, the entry dialog, the guided tour
+tests/               Vitest: time, money, entries, weeks, invoice, permissions, input, seed
+e2e/                 Playwright: entries and their errors, fixing a rejected week, approve and
+                     reject, the invoice, permissions, the tour
 ```
 
 **Entry rules**, checked on the server inside one `BEGIN IMMEDIATE` transaction with the save, so two
