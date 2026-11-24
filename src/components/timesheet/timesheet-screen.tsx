@@ -70,6 +70,7 @@ export function TimesheetScreen({ week, engagements, view, nowIso }: Props) {
             spacing={0}
             size="sm"
             aria-label="Week view"
+            data-tour="week-views"
             value={view}
             onValueChange={(v) => v && router.replace(href(week.weekStart, v as WeekView))}
           >
@@ -104,7 +105,7 @@ export function TimesheetScreen({ week, engagements, view, nowIso }: Props) {
               </Button>
             )}
           </div>
-          <Button size="sm" disabled={!canAddAny} onClick={() => openCreate(slotAfterLast(defaultDay, entries))}>
+          <Button size="sm" data-tour="new-entry" disabled={!canAddAny} onClick={() => openCreate(slotAfterLast(defaultDay, entries))}>
             <Plus /> New entry
           </Button>
         </div>
@@ -112,8 +113,8 @@ export function TimesheetScreen({ week, engagements, view, nowIso }: Props) {
 
       {week.engagements
         .filter((g) => g.status === "rejected")
-        .map((g) => (
-          <Alert key={g.engagementId} variant="destructive">
+        .map((g, i) => (
+          <Alert key={g.engagementId} variant="destructive" data-tour={i === 0 ? "rejection" : undefined}>
             <XCircle />
             <AlertTitle>{g.clientName} rejected this week</AlertTitle>
             <AlertDescription>

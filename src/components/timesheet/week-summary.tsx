@@ -28,10 +28,15 @@ export function StatCards({
           {week.engagements.length > 1 ? `, ${week.engagements.length} clients` : ""}
         </div>
       </Card>
-      {week.engagements.map((g) => {
+      {week.engagements.map((g, i) => {
         const canSubmit = (g.status === "draft" || g.status === "rejected") && g.minutes > 0 && !week.isFuture;
         return (
-          <Card key={g.engagementId} className="gap-1 p-4" data-testid={`client-card-${g.clientName}`}>
+          <Card
+            key={g.engagementId}
+            className="gap-1 p-4"
+            data-testid={`client-card-${g.clientName}`}
+            data-tour={i === 0 ? "client-card" : undefined}
+          >
             <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
               <span className="truncate">{g.clientName}</span>
               <StatusBadge status={g.status} />
@@ -69,7 +74,7 @@ export function StatCards({
 
 export function DayStrip({ week }: { week: ContractorWeek }) {
   return (
-    <ol className="grid grid-cols-7 gap-2" aria-label="Hours per day">
+    <ol className="grid grid-cols-7 gap-1.5 sm:gap-2" aria-label="Hours per day" data-tour="day-strip">
       {week.days.map((d) => {
         const frac = Math.min(d.minutes / CAP, 1);
         const left = CAP - d.minutes;

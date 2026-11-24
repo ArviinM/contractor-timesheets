@@ -34,16 +34,16 @@ async function SignedInShell({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <Suspense>
-        <AppSidebar
-          user={{ name: actor.name, role: actor.role, timeZone: actor.timeZone }}
-          currentWeek={currentWeek}
-          recentWeeks={recentWeeks}
-          waiting={waiting}
-        />
-      </Suspense>
+      {/* No inner Suspense here: the sidebar must hydrate together with its provider, which
+          switches to the phone layout right after hydration. The layout's boundary covers it. */}
+      <AppSidebar
+        user={{ name: actor.name, role: actor.role, timeZone: actor.timeZone }}
+        currentWeek={currentWeek}
+        recentWeeks={recentWeeks}
+        waiting={waiting}
+      />
       <SidebarInset>
-        <TopBar role={actor.role} />
+        <TopBar role={actor.role} userId={actor.id} />
         <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 p-4 md:p-6">{children}</div>
       </SidebarInset>
     </SidebarProvider>

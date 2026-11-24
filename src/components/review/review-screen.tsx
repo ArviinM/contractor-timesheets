@@ -36,7 +36,7 @@ export function ReviewScreen({ clientTimeZone, waiting, decided, approvedThisMon
       </div>
 
       <div className="grid items-start gap-4 lg:grid-cols-[18rem_1fr]">
-        <Card className="gap-0 p-2">
+        <Card className="gap-0 p-2" data-tour="review-queue">
           <QueueSection title="Waiting for you" weeks={waiting} selectedId={detail?.week.weekId} empty="All caught up. Weeks show here when your contractors submit them." />
           {decided.length > 0 && <QueueSection title="Recently decided" weeks={decided} selectedId={detail?.week.weekId} />}
         </Card>
@@ -106,7 +106,7 @@ function WeekDetail({ detail }: { detail: ReviewWeekDetail }) {
   const { week, days, clientTimeZone } = detail;
   const weekText = `Week of ${dayLabel(week.weekStart)} (the contractor's week, ${week.contractorTimeZone})`;
   return (
-    <Card className="gap-4 p-4 md:p-5">
+    <Card className="min-w-0 gap-4 p-4 md:p-5" data-tour="week-detail">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <div className="flex items-center gap-2">

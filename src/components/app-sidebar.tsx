@@ -77,7 +77,7 @@ export function AppSidebar({ user, currentWeek, recentWeeks, waiting }: Props) {
                     </SidebarMenuButton>
                     {waiting > 0 && <SidebarMenuBadge aria-label={`${waiting} waiting`}>{waiting}</SidebarMenuBadge>}
                   </SidebarMenuItem>
-                  <SidebarMenuItem>
+                  <SidebarMenuItem data-tour="invoice-nav">
                     <SidebarMenuButton asChild isActive={pathname.startsWith("/invoice")}>
                       <Link href="/invoice">
                         <FileText />
@@ -92,7 +92,7 @@ export function AppSidebar({ user, currentWeek, recentWeeks, waiting }: Props) {
         </SidebarGroup>
 
         {user.role === "contractor" && recentWeeks.length > 0 && (
-          <SidebarGroup>
+          <SidebarGroup data-tour="recent-weeks">
             <SidebarGroupLabel>Recent weeks</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
@@ -127,7 +127,7 @@ export function AppSidebar({ user, currentWeek, recentWeeks, waiting }: Props) {
             </span>
           </div>
         </div>
-        <form action={signOutAction}>
+        <form action={signOutAction} data-tour="switch-user">
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton type="submit">

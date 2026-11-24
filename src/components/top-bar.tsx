@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { TourButton } from "@/components/tour/tour-button";
 
 function crumbsFor(pathname: string, role: "contractor" | "client"): { label: string; href?: string }[] {
   if (pathname.startsWith("/timesheet")) return [{ label: "Contractor" }, { label: "Timesheet" }];
@@ -22,13 +24,13 @@ function crumbsFor(pathname: string, role: "contractor" | "client"): { label: st
   return [{ label: role === "contractor" ? "Contractor" : "Client" }];
 }
 
-export function TopBar({ role }: { role: "contractor" | "client" }) {
+export function TopBar({ role, userId }: { role: "contractor" | "client"; userId: number }) {
   const crumbs = crumbsFor(usePathname(), role);
   return (
     <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 border-b bg-background/95 px-3 backdrop-blur">
       <SidebarTrigger aria-label="Toggle sidebar" />
       <Separator orientation="vertical" className="mr-1 data-[orientation=vertical]:h-4" />
-      <Breadcrumb>
+      <Breadcrumb className="min-w-0">
         <BreadcrumbList>
           {crumbs.map((c, i) => (
             <Fragment key={c.label}>
@@ -48,6 +50,10 @@ export function TopBar({ role }: { role: "contractor" | "client" }) {
           ))}
         </BreadcrumbList>
       </Breadcrumb>
+      <div className="ml-auto flex items-center gap-1">
+        <TourButton role={role} userId={userId} />
+        <ThemeToggle />
+      </div>
     </header>
   );
 }

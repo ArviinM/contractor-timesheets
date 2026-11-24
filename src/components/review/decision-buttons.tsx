@@ -33,7 +33,7 @@ type Props = {
 export function DecisionButtons(props: Props) {
   const [open, setOpen] = useState<"approve" | "reject" | null>(null);
   return (
-    <div className="flex flex-col gap-2 border-t pt-4">
+    <div className="flex flex-col gap-2 border-t pt-4" data-tour="decision">
       <div className="flex flex-wrap gap-2">
         <Button onClick={() => setOpen("approve")}>
           <Check /> Approve week
