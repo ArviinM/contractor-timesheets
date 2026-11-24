@@ -33,7 +33,7 @@ export type Invoice = {
   lines: InvoiceLine[];
   totalMinutes: number;
   totalCents: number;
-  /** Hours in the range that aren't billable yet (not approved), so nothing silently disappears. */
+  /** Submitted or rejected hours in the range that aren't billable yet, so nothing silently disappears. */
   notInvoiced: NotInvoiced[];
 };
 
@@ -82,16 +82,16 @@ export function getInvoice(db: DB, actor: Actor, from: string, to: string): Invo
     };
   });
 
+  // Submitted or rejected weeks only: a contractor's drafts stay private until they submit.
   const notInvoiced = db
     .prepare(
-      `SELECT u.name AS contractorName, e.week_start AS weekStart,
-              COALESCE(w.status, 'draft') AS status, SUM(e.minutes) AS minutes
+      `SELECT u.name AS contractorName, e.week_start AS weekStart, w.status, SUM(e.minutes) AS minutes
          FROM time_entries e
          JOIN engagements g ON g.id = e.engagement_id
          JOIN users u ON u.id = g.contractor_id
-         LEFT JOIN weeks w ON w.engagement_id = e.engagement_id AND w.week_start = e.week_start
+         JOIN weeks w ON w.engagement_id = e.engagement_id AND w.week_start = e.week_start
         WHERE g.client_id = ?
-          AND COALESCE(w.status, 'draft') <> 'approved'
+          AND w.status IN ('submitted', 'rejected')
           AND e.work_date BETWEEN ? AND ?
         GROUP BY e.engagement_id, e.week_start
         ORDER BY e.week_start, u.name`,

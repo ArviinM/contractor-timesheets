@@ -62,15 +62,12 @@ describe("what goes on the invoice", () => {
     log(f, f.ayu, ENG.ayuNorthwind, "2026-11-29T09:00", "2026-11-29T11:00"); // week of 23 Nov, Sunday
   });
 
-  it("only counts approved weeks, and lists the rest as not invoiced", () => {
-    submit(ENG.ayuNorthwind, "2026-11-16"); // submitted, not approved
+  it("only counts approved weeks, and lists submitted ones as not invoiced (drafts stay private)", () => {
+    submit(ENG.ayuNorthwind, "2026-11-16"); // submitted, not approved; week of 23 Nov is still a draft
     const invoice = getInvoice(f.db, f.northwind, "2026-11-01", "2026-11-30");
     expect(invoice.lines).toHaveLength(0);
     expect(invoice.totalCents).toBe(0);
-    expect(invoice.notInvoiced.map((n) => [n.weekStart, n.status, n.minutes])).toEqual([
-      ["2026-11-16", "submitted", 60],
-      ["2026-11-23", "draft", 180],
-    ]);
+    expect(invoice.notInvoiced.map((n) => [n.weekStart, n.status, n.minutes])).toEqual([["2026-11-16", "submitted", 60]]);
   });
 
   it("leaves out rejected weeks", () => {

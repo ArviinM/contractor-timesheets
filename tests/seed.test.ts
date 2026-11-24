@@ -7,7 +7,7 @@ const moments = {
   "Monday just after midnight in Jakarta": "2026-11-22T17:30:00Z",
   "Friday evening in Jakarta": "2026-11-27T13:00:00Z",
   "Sunday late night in Jakarta": "2026-11-29T16:59:00Z",
-  "New York daylight-saving day": "2026-11-01T12:00:00Z",
+  "first day of a month, a Sunday": "2026-11-01T12:00:00Z",
 };
 
 describe("seed data", () => {
