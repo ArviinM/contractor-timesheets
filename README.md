@@ -169,6 +169,7 @@ rule, and each one fails if its check is removed.
 - Changing a user's time zone after entries exist.
 - A limit on continuous hours: 20:00 to 08:00 then 08:00 to 20:00 passes the daily cap.
 - Pagination, invoice numbers, PDF, taxes, payment status, overtime and holidays.
+- Live overlap and 12-hour warnings in the entry form (the server checks on save today).
 
 ## How I used AI
 
@@ -176,3 +177,5 @@ I made the planning decisions: the stack, the data model, which time zone sets t
 rules, the test cases, and what to leave out. Claude Code (Anthropic) laid out the options with a
 recommendation for each, and I chose. Claude Code then wrote the code and drafted this README from that
 plan. I reviewed the changes, ran the tests, and checked the permission rules myself.
+
+About 3 hours in total, including planning and my review.
