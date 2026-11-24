@@ -58,13 +58,18 @@ export function submitWeek(
     .immediate();
 }
 
-/** Client approves. Final, and the hourly rate is locked into the week. */
-export function approveWeek(db: DB, actor: Actor, weekId: number, now: Date): void {
+/**
+ * Client approves. Final, and the hourly rate is locked into the week.
+ * `seenSubmittedAt` (from the review page) makes sure the client approves the version they looked at:
+ * if the week was rejected and resubmitted meanwhile, an old tab can't approve the new version unseen.
+ */
+export function approveWeek(db: DB, actor: Actor, weekId: number, now: Date, seenSubmittedAt?: string): void {
   db.transaction(() => {
     const week = requireClientWeek(db, actor, weekId);
     if (week.status !== "submitted") {
       throw new ValidationError("Only a submitted week can be approved.");
     }
+    assertSameVersion(week, seenSubmittedAt);
     const { hourlyRateCents } = getEngagement(db, week.engagementId);
     db.prepare(
       `UPDATE weeks SET status = 'approved', approved_rate_cents = ?, decided_at = ?, decided_by = ?
@@ -74,12 +79,20 @@ export function approveWeek(db: DB, actor: Actor, weekId: number, now: Date): vo
 }
 
 /** Client rejects with a comment. The week reopens for the contractor to fix and resubmit. */
-export function rejectWeek(db: DB, actor: Actor, weekId: number, comment: string, now: Date): void {
+export function rejectWeek(
+  db: DB,
+  actor: Actor,
+  weekId: number,
+  comment: string,
+  now: Date,
+  seenSubmittedAt?: string,
+): void {
   db.transaction(() => {
     const week = requireClientWeek(db, actor, weekId);
     if (week.status !== "submitted") {
       throw new ValidationError("Only a submitted week can be rejected.");
     }
+    assertSameVersion(week, seenSubmittedAt);
     const text = (comment ?? "").trim();
     if (!text) throw new ValidationError("Add a comment so the contractor knows what to fix.");
     if (text.length > COMMENT_MAX) {
@@ -92,7 +105,19 @@ export function rejectWeek(db: DB, actor: Actor, weekId: number, comment: string
   }).immediate();
 }
 
-type ClientWeek = { id: number; engagementId: number; status: WeekStatus; weekStart: string };
+type ClientWeek = {
+  id: number;
+  engagementId: number;
+  status: WeekStatus;
+  weekStart: string;
+  submittedAt: string;
+};
+
+function assertSameVersion(week: ClientWeek, seenSubmittedAt: string | undefined): void {
+  if (seenSubmittedAt !== undefined && seenSubmittedAt !== week.submittedAt) {
+    throw new ValidationError("This week was resubmitted after you opened it. Reload to see the latest version.");
+  }
+}
 
 /** The week must belong to one of this client's contractors. */
 function requireClientWeek(db: DB, actor: Actor, weekId: number): ClientWeek {
@@ -100,7 +125,7 @@ function requireClientWeek(db: DB, actor: Actor, weekId: number): ClientWeek {
   const row = db
     .prepare(
       `SELECT w.id, w.engagement_id AS engagementId, w.status, w.week_start AS weekStart,
-              g.client_id AS clientId
+              w.submitted_at AS submittedAt, g.client_id AS clientId
          FROM weeks w JOIN engagements g ON g.id = w.engagement_id
         WHERE w.id = ?`,
     )

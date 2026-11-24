@@ -50,6 +50,25 @@ describe("approving and rejecting", () => {
     expect(row).toEqual({ status: "approved", approved_rate_cents: 3333, decided_by: f.northwind.id });
   });
 
+  it("keeps the approved rate when the engagement rate changes later", () => {
+    approveWeek(f.db, f.northwind, weekId, NOW);
+    f.db.prepare("UPDATE engagements SET hourly_rate_cents = 5000 WHERE id = ?").run(ENG.ayuNorthwind);
+    expect(f.db.prepare("SELECT approved_rate_cents FROM weeks WHERE id = ?").get(weekId)).toEqual({
+      approved_rate_cents: 3333,
+    });
+  });
+
+  it("refuses to approve a version the client didn't see (rejected, then resubmitted meanwhile)", () => {
+    const seen = (f.db.prepare("SELECT submitted_at FROM weeks WHERE id = ?").get(weekId) as { submitted_at: string })
+      .submitted_at;
+    rejectWeek(f.db, f.northwind, weekId, "Fix Monday.", NOW);
+    submitWeek(f.db, f.ayu, { engagementId: ENG.ayuNorthwind, weekStart: MON }, new Date("2026-11-30T01:00:00Z"));
+    expect(() => approveWeek(f.db, f.northwind, weekId, NOW, seen)).toThrow(/resubmitted after you opened it/);
+    const latest = (f.db.prepare("SELECT submitted_at FROM weeks WHERE id = ?").get(weekId) as { submitted_at: string })
+      .submitted_at;
+    expect(() => approveWeek(f.db, f.northwind, weekId, NOW, latest)).not.toThrow();
+  });
+
   it("rejects with a comment, and the comment is kept", () => {
     rejectWeek(f.db, f.northwind, weekId, "  Monday's call was internal.  ", NOW);
     const row = f.db.prepare("SELECT status, reject_comment FROM weeks WHERE id = ?").get(weekId);
