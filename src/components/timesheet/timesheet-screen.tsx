@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { CalendarDays, ChevronLeft, ChevronRight, GanttChart, List, Plus, Table2, XCircle } from "lucide-react";
+import { CalendarClock, CalendarDays, ChevronLeft, ChevronRight, List, Plus, Table2, XCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -81,7 +81,7 @@ export function TimesheetScreen({ week, engagements, view, nowIso }: Props) {
               <Table2 /> Table
             </ToggleGroupItem>
             <ToggleGroupItem value="timeline" aria-label="Timeline view">
-              <GanttChart /> Timeline
+              <CalendarClock /> Timeline
             </ToggleGroupItem>
           </ToggleGroup>
           <div className="flex items-center gap-1">
