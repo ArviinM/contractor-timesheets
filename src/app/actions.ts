@@ -12,8 +12,9 @@ import type { Actor } from "@/server/actor";
 import { loadActor } from "@/server/actor";
 import { getDb } from "@/server/app-db";
 import { appNow } from "@/server/clock";
-import { createEntry, deleteEntry, updateEntry, type EntryInput } from "@/server/entries";
+import { createEntry, deleteEntry, updateEntry } from "@/server/entries";
 import { isAppError, ValidationError } from "@/server/errors";
+import { parseEntryInput, parseId, parseOptionalText, parseText } from "@/server/input";
 import { currentActor, homeFor, SESSION_COOKIE } from "@/server/session";
 import { approveWeek, rejectWeek, submitWeek } from "@/server/weeks";
 
@@ -32,28 +33,10 @@ async function run(work: (actor: Actor) => void): Promise<ActionResult> {
   return { ok: true };
 }
 
-// Inputs arrive from the network, so their shape is checked too.
-function id(value: unknown): number {
-  const n = typeof value === "string" ? Number(value) : value;
-  if (typeof n !== "number" || !Number.isSafeInteger(n) || n <= 0) throw new ValidationError("Bad request.");
-  return n;
-}
-
-function text(value: unknown): string {
-  if (value === undefined || value === null) return "";
-  if (typeof value !== "string") throw new ValidationError("Bad request.");
-  return value;
-}
-
-function entryInput(value: unknown): EntryInput {
-  const v = (value ?? {}) as Record<string, unknown>;
-  return { engagementId: id(v.engagementId), start: text(v.start), end: text(v.end), note: text(v.note) };
-}
-
 // ---------------------------------------------------------------- dev login
 
 export async function signInAction(userId: unknown): Promise<void> {
-  const actor = loadActor(getDb(), id(userId));
+  const actor = loadActor(getDb(), parseId(userId));
   if (!actor) throw new ValidationError("Unknown user.");
   (await cookies()).set(SESSION_COOKIE, String(actor.id), {
     httpOnly: true,
@@ -73,30 +56,37 @@ export async function signOutAction(): Promise<void> {
 
 export async function createEntryAction(input: unknown): Promise<ActionResult> {
   return run((actor) => {
-    createEntry(getDb(), actor, entryInput(input), appNow());
+    createEntry(getDb(), actor, parseEntryInput(input), appNow());
   });
 }
 
 export async function updateEntryAction(entryId: unknown, input: unknown): Promise<ActionResult> {
-  return run((actor) => updateEntry(getDb(), actor, id(entryId), entryInput(input), appNow()));
+  return run((actor) => updateEntry(getDb(), actor, parseId(entryId), parseEntryInput(input), appNow()));
 }
 
 export async function deleteEntryAction(entryId: unknown): Promise<ActionResult> {
-  return run((actor) => deleteEntry(getDb(), actor, id(entryId)));
+  return run((actor) => deleteEntry(getDb(), actor, parseId(entryId)));
 }
 
 export async function submitWeekAction(engagementId: unknown, weekStart: unknown): Promise<ActionResult> {
   return run((actor) => {
-    submitWeek(getDb(), actor, { engagementId: id(engagementId), weekStart: text(weekStart) }, appNow());
+    submitWeek(getDb(), actor, { engagementId: parseId(engagementId), weekStart: parseText(weekStart) }, appNow());
   });
 }
 
 // ---------------------------------------------------------------- client
 
-export async function approveWeekAction(weekId: unknown): Promise<ActionResult> {
-  return run((actor) => approveWeek(getDb(), actor, id(weekId), appNow()));
+/** `seenSubmittedAt`: the week's submittedAt as shown on the review page (see approveWeek). */
+export async function approveWeekAction(weekId: unknown, seenSubmittedAt?: unknown): Promise<ActionResult> {
+  return run((actor) => approveWeek(getDb(), actor, parseId(weekId), appNow(), parseOptionalText(seenSubmittedAt)));
 }
 
-export async function rejectWeekAction(weekId: unknown, comment: unknown): Promise<ActionResult> {
-  return run((actor) => rejectWeek(getDb(), actor, id(weekId), text(comment), appNow()));
+export async function rejectWeekAction(
+  weekId: unknown,
+  comment: unknown,
+  seenSubmittedAt?: unknown,
+): Promise<ActionResult> {
+  return run((actor) =>
+    rejectWeek(getDb(), actor, parseId(weekId), parseText(comment), appNow(), parseOptionalText(seenSubmittedAt)),
+  );
 }
