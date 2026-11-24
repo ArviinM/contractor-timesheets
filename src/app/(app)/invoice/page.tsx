@@ -103,7 +103,7 @@ function InvoiceDocument({ invoice }: { invoice: Invoice }) {
             {longDayLabel(invoice.from)} to {longDayLabel(invoice.to)}
           </p>
         </div>
-        <div className="text-right">
+        <div className="sm:text-right">
           <div className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Total due, USD</div>
           <div className="font-mono text-3xl font-semibold tabular" data-testid="invoice-total">
             {formatUsd(invoice.totalCents)}

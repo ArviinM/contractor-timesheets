@@ -1,18 +1,24 @@
 import * as React from "react"
 
 const MOBILE_BREAKPOINT = 768
-const QUERY = `(max-width: ${MOBILE_BREAKPOINT - 1}px)`
 
-function subscribe(onChange: () => void) {
-  const mql = window.matchMedia(QUERY)
-  mql.addEventListener("change", onChange)
-  return () => mql.removeEventListener("change", onChange)
-}
-
+/**
+ * False on the server and during hydration (so the markup matches), then the real value.
+ * The first check runs in a frame callback rather than directly in the effect body.
+ */
 export function useIsMobile() {
-  return React.useSyncExternalStore(
-    subscribe,
-    () => window.matchMedia(QUERY).matches,
-    () => false
-  )
+  const [isMobile, setIsMobile] = React.useState(false)
+
+  React.useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
+    const onChange = () => setIsMobile(mql.matches)
+    const frame = requestAnimationFrame(onChange)
+    mql.addEventListener("change", onChange)
+    return () => {
+      cancelAnimationFrame(frame)
+      mql.removeEventListener("change", onChange)
+    }
+  }, [])
+
+  return isMobile
 }

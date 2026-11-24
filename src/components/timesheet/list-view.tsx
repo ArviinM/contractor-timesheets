@@ -73,14 +73,18 @@ export function ListView({ week, multiClient, canAddOn, onAdd, onEdit, onDelete 
           ) : (
             <ul className="mt-2 flex flex-col gap-1">
               {d.entries.map((e) => (
-                <li key={e.id} className="flex items-center gap-3 rounded-md px-2 py-1.5 hover:bg-muted/50">
-                  <span className="w-32 shrink-0 font-mono text-sm whitespace-nowrap tabular">
+                <li
+                  key={e.id}
+                  className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md px-2 py-1.5 hover:bg-muted/50 sm:flex-nowrap"
+                >
+                  <span className="shrink-0 font-mono text-sm whitespace-nowrap tabular sm:w-32">
                     {e.startTime} to {e.endTime}
                   </span>
-                  <span className="w-12 shrink-0 text-right font-mono text-sm text-muted-foreground tabular">
+                  <span className="w-12 shrink-0 font-mono text-sm text-muted-foreground tabular sm:text-right">
                     {formatHours(e.minutes)}
                   </span>
-                  <span className="flex min-w-0 flex-1 items-center gap-2">
+                  {/* On phones the note drops to its own line under the times. */}
+                  <span className="order-last flex min-w-0 basis-full flex-wrap items-center gap-2 sm:order-none sm:flex-1 sm:basis-auto sm:flex-nowrap">
                     {multiClient && <Badge variant="outline">{e.clientName}</Badge>}
                     <span className="truncate text-sm">{e.note || <span className="text-muted-foreground">No note</span>}</span>
                     {e.endsNextDay && (
@@ -90,7 +94,9 @@ export function ListView({ week, multiClient, canAddOn, onAdd, onEdit, onDelete 
                       </Badge>
                     )}
                   </span>
-                  <EntryActions entry={e} label={entryLabel(d.label, e)} onEdit={onEdit} onDelete={onDelete} />
+                  <span className="ml-auto">
+                    <EntryActions entry={e} label={entryLabel(d.label, e)} onEdit={onEdit} onDelete={onDelete} />
+                  </span>
                 </li>
               ))}
             </ul>
