@@ -92,10 +92,18 @@ src/server/          all rules live here, framework-free and tested directly
 src/app/actions.ts   Server Actions: who's signed in, then call a service. Nothing else.
 src/app/...          pages: sign-in, timesheet (list / table / timeline), review, invoice
 src/components/      shadcn/ui based components, the entry dialog, the guided tour
-tests/               Vitest: time, money, entries, weeks, invoice, permissions, input, seed
+tests/               Vitest: time, money, entries, weeks, invoice, permissions, input, seed,
+                     zones (the same hours seen by clients in other zones), random (see below)
 e2e/                 Playwright: entries and their errors, fixing a rejected week, approve and
                      reject, the invoice, permissions, the tour
 ```
+
+**Randomised tests** (`tests/random.test.ts`) run about 6,000 random operations (add, edit, delete,
+submit, approve, reject, and attempts by the wrong user) against the real services and a small separate
+model of the rules, which uses the platform's own time zone data instead of Luxon. After every step they
+must agree, the database must match the model, and no contractor may have overlapping entries or more than
+12:00 on a day. They run with contractors in Jakarta, New York and London (across the night clocks go
+back), Kolkata (UTC+5:30) and Lord Howe Island (clocks move 30 minutes). Seeded, so a failure replays.
 
 **Entry rules**, checked on the server inside one `BEGIN IMMEDIATE` transaction with the save, so two
 requests can't both pass a check and then both save:
