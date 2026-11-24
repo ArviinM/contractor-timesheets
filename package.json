@@ -10,7 +10,7 @@
     "db:reset": "tsx scripts/db-reset.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test:e2e": "playwright test"
   },
   "dependencies": {

@@ -26,6 +26,7 @@ skipped `db:reset` still works. Run `npm run db:reset` any time to start fresh.
 npm test                          # Vitest: time, money, rules and permission checks (in-memory SQLite)
 npx playwright install chromium   # first time only, for the browser tests
 npm run test:e2e                  # Playwright: the main flows in a real browser
+npm run typecheck                 # generates Next's route types, then runs tsc
 ```
 
 The browser tests start their own server on port 3100 with a separate database (`data/e2e.db`) and a
