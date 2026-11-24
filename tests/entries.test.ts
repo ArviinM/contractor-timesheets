@@ -144,6 +144,12 @@ describe("a submitted week locks its entries", () => {
     expect(() => deleteEntry(f.db, f.ayu, entryId)).not.toThrow();
   });
 
+  it("refuses moving an entry out of a locked week into an open one", () => {
+    expect(() =>
+      updateEntry(f.db, f.ayu, entryId, { engagementId: ENG.ayuNorthwind, start: "2026-11-17T09:00", end: "2026-11-17T10:00" }, NOW),
+    ).toThrow(/week of Mon 23 Nov is submitted/);
+  });
+
   it("refuses moving an entry from an open week into a locked one", () => {
     const open = log(f, f.ayu, ENG.ayuNorthwind, "2026-11-17T09:00", "2026-11-17T10:00"); // week of 16 Nov, draft
     expect(() =>
@@ -153,6 +159,19 @@ describe("a submitted week locks its entries", () => {
 
   it("only locks that client's week: the same days for another client stay open", () => {
     expect(() => log(f, f.ayu, ENG.ayuBluefin, `${TUE}T09:00`, `${TUE}T10:00`)).not.toThrow();
+  });
+});
+
+describe("daylight saving (contractor in New York)", () => {
+  it("refuses a time that happens twice when clocks go back, instead of guessing", () => {
+    expect(() => log(f, f.nick, ENG.nickNorthwind, "2026-11-01T00:30", "2026-11-01T01:30")).toThrow(
+      "01:30 on Sun 1 Nov happens twice (clocks go back). Pick a time outside that hour.",
+    );
+  });
+
+  it("stores real minutes across the change: 00:00 to 03:00 is 4 hours", () => {
+    const id = log(f, f.nick, ENG.nickNorthwind, "2026-11-01T00:00", "2026-11-01T03:00");
+    expect(f.db.prepare("SELECT minutes FROM time_entries WHERE id = ?").get(id)).toEqual({ minutes: 240 });
   });
 });
 

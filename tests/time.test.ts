@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   clockTime,
+  isRepeatedWallTime,
   minutesBetween,
   parseLocalDateTime,
   toUtcText,
@@ -61,6 +62,12 @@ describe("daylight saving (contractor in New York)", () => {
     const start = utc("2026-11-01T00:00", NEW_YORK);
     const end = utc("2026-11-01T03:00", NEW_YORK);
     expect(minutesBetween(start, end)).toBe(240);
+  });
+
+  it("spots a wall time that happens twice when clocks go back", () => {
+    expect(isRepeatedWallTime(parseLocalDateTime("2026-11-01T01:30", NEW_YORK)!)).toBe(true);
+    expect(isRepeatedWallTime(parseLocalDateTime("2026-11-01T00:30", NEW_YORK)!)).toBe(false);
+    expect(isRepeatedWallTime(parseLocalDateTime("2026-11-23T09:00", JAKARTA)!)).toBe(false);
   });
 
   it("refuses a wall time that doesn't exist when clocks go forward", () => {

@@ -39,6 +39,11 @@ export function parseLocalDateTime(value: string, zone: string): DateTime | null
   return dt;
 }
 
+/** True for a wall time that happens twice because clocks go back (e.g. 01:30 on 1 Nov 2026 in New York). */
+export function isRepeatedWallTime(dt: DateTime): boolean {
+  return dt.getPossibleOffsets().length > 1;
+}
+
 /** The value for <input type="datetime-local"> showing this instant in the zone. */
 export function toLocalInput(utc: string, zone: string): string {
   return fromUtcText(utc).setZone(zone).toFormat(LOCAL_INPUT);

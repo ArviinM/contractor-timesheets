@@ -6,6 +6,7 @@ import {
   DAILY_CAP_MINUTES,
   clockTime,
   dayLabel,
+  isRepeatedWallTime,
   minutesBetween,
   parseLocalDateTime,
   toUtcText,
@@ -128,6 +129,15 @@ function validate(actor: Actor, input: EntryInput, now: Date) {
   if (!start) throw new ValidationError("Start isn't a valid date and time.");
   const end = parseLocalDateTime(input.end ?? "", actor.timeZone);
   if (!end) throw new ValidationError("End isn't a valid date and time.");
+  for (const dt of [start, end]) {
+    // When clocks go back, an hour happens twice; we can't know which one was meant.
+    if (isRepeatedWallTime(dt)) {
+      throw new ValidationError(
+        `${dt.toFormat("HH:mm")} on ${dt.toFormat("ccc d LLL")} happens twice (clocks go back). ` +
+          "Pick a time outside that hour.",
+      );
+    }
+  }
   if (end <= start) throw new ValidationError("End must be after start.");
   if (end.toMillis() > now.getTime()) {
     throw new ValidationError("An entry can't end in the future.");
