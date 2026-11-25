@@ -179,3 +179,7 @@ recommendation for each, and I chose. Claude Code then wrote the code and drafte
 plan. I reviewed the changes, ran the tests, and checked the permission rules myself.
 
 About 3 hours in total, including planning and my review.
+
+## License
+
+All rights reserved. You may view and run this code to evaluate my application; any other use needs my written permission. See [LICENSE](LICENSE).
